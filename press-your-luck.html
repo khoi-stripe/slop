@@ -34,6 +34,7 @@
 
     * { box-sizing: border-box; }
     html, body { height: 100%; }
+    html { overflow: auto; }
     body {
       margin: 0;
       font-family: ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
@@ -42,12 +43,14 @@
       display: grid;
       place-items: center;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      overflow: auto;
     }
 
     .app {
       /* Fill as much viewport as possible without clipping, preserving 16:9 */
-      width: min(100dvw, calc(100dvh * (16 / 9)));
-      height: min(100dvh, calc(100dvw * (9 / 16)));
+      width: min(100svw, calc(100svh * (16 / 9)));
+      /* Let aspect-ratio compute exact height to avoid rounding mismatch */
+      height: auto;
       aspect-ratio: 16 / 9; /* 16:9 stage */
       background: transparent;
       border: none;
@@ -61,6 +64,7 @@
       /* Enable container relative units for proportional scaling */
       container-type: size;
       font-size: clamp(12px, 2.2cqi, 18px);
+      overflow: visible;
     }
 
     .header, .footer {
@@ -139,9 +143,11 @@
       background: radial-gradient(600px 260px at 50% 40%, #1c2347, #12162a 70%);
       border: none;
       padding: 0;
+      min-height: 0; /* allow grid to shrink without overflow */
     }
     .center img {
       width: 100%; height: 100%; object-fit: contain;
+      max-height: 100%;
     }
 
     .kbd {
