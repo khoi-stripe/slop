@@ -19,6 +19,9 @@
         try {
           const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
           document.documentElement.style.setProperty('--vhpx', h + 'px');
+          const w = (window.visualViewport && window.visualViewport.width) ? window.visualViewport.width : window.innerWidth;
+          const scale = Math.min(w / 1600, h / 900);
+          document.documentElement.style.setProperty('--scale', String(scale));
         } catch {}
       }
       setVh();
@@ -46,11 +49,12 @@
       --success: #31c48d;
       --selected-yellow: #E1B033;
       --gremlin-bg: rgba(0,0,0,0.1);
+      --scale: 1;
     }
 
     * { box-sizing: border-box; }
     html, body { height: 100%; }
-    html { overflow: auto; }
+    html { overflow: hidden; }
     body {
       margin: 0;
       font-family: ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
@@ -59,28 +63,26 @@
       display: grid;
       place-items: center;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-      overflow: auto;
+      overflow: hidden;
     }
 
+    /* Full-viewport stage and scaled fixed-canvas app to avoid any grid rounding issues */
+    #stage { width: 100svw; height: var(--vhpx, 100svh); position: relative; overflow: hidden; display: block; }
     .app {
-      /* Fill as much viewport as possible without clipping, preserving 16:9 */
-      width: min(100svw, calc(var(--vhpx, 100svh) * (16 / 9)));
-      /* Let aspect-ratio compute exact height to avoid rounding mismatch */
-      height: min(var(--vhpx, 100svh), calc(100svw * (9 / 16)));
-      aspect-ratio: 16 / 9; /* 16:9 stage */
+      width: 1600px; /* base canvas width */
+      height: 900px; /* base canvas height (16:9) */
       background: transparent;
       border: none;
       border-radius: 0;
-      padding: clamp(8px, 1.5cqi, 20px);
+      padding: 16px;
       display: grid;
       grid-template-rows: auto 1fr auto;
-      gap: clamp(6px, 1cqi, 16px);
-      position: relative;
+      gap: 10px;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(var(--scale));
+      transform-origin: center center;
       box-shadow: none;
-      /* Enable container relative units for proportional scaling */
-      container-type: size;
-      font-size: clamp(12px, 2.2cqi, 18px);
-      overflow: visible;
     }
 
     .header, .footer {
@@ -98,8 +100,8 @@
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       grid-template-rows: repeat(5, 1fr);
-      gap: clamp(6px, 1cqi, 16px);
-      padding: clamp(4px, 0.8cqi, 12px);
+      gap: 10px;
+      padding: 6px;
     }
 
     /* We'll place 18 perimeter tiles and one center area spanning 4 cells x 2 rows */
@@ -109,7 +111,7 @@
       grid-auto-flow: row;
       place-items: center;
       text-align: center;
-      padding: clamp(8px, 1.8cqi, 24px);
+      padding: 16px;
       overflow: hidden;
       position: relative;
       transition: box-shadow 120ms ease, transform 80ms ease, background 180ms ease, border-color 180ms ease;
@@ -121,8 +123,8 @@
       border: none;
     }
 
-    .tile .title { font-size: clamp(12px, 3cqi, 28px); font-weight: 700; color: var(--tile-text); }
-    .tile .subtitle { font-size: clamp(10px, 2cqi, 16px); color: var(--muted); }
+    .tile .title { font-size: 18px; font-weight: 700; color: var(--tile-text); }
+    .tile .subtitle { font-size: 12px; color: var(--muted); }
 
     /* Gremlin visuals */
     .tile .gremlin-img { display: none; width: 100%; height: 100%; object-fit: contain; border-radius: 4px; }
@@ -189,7 +191,7 @@
   </style>
 </head>
 <body>
-  <div class="app" id="app">
+  <div id="stage"><div class="app" id="app">
     <div class="header" id="uiHeader" style="display:none;">
       <div>
         <span>Space: <span class="kbd">stop/select</span></span>
@@ -221,7 +223,7 @@
       <textarea id="configText"></textarea>
       <div class="row"><div style="font-size:12px; color: var(--muted);">Changes persist in your browser</div></div>
     </div>
-  </div>
+  </div></div>
 
   <script>
     // Configuration schema stored in localStorage
