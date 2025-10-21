@@ -31,12 +31,15 @@
           document.documentElement.style.setProperty('--scale', String(scale));
         } catch {}
       }
-      setVh();
-      const vv = window.visualViewport;
-      if (vv && vv.addEventListener) {
-        vv.addEventListener('resize', setVh);
+      // Simple debounce to prevent rapid re-computation during tiny oscillations
+      let t = null;
+      function onResize() {
+        if (t) { clearTimeout(t); }
+        t = setTimeout(setVh, 150);
       }
-      window.addEventListener('resize', setVh);
+      setVh();
+      // Only listen to window resize; avoid visualViewport resize on desktop to prevent oscillation
+      window.addEventListener('resize', onResize);
       window.addEventListener('orientationchange', setVh);
     })();
   </script>
