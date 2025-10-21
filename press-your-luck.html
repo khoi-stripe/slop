@@ -13,6 +13,22 @@
         navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
       });
     }
+    // Compute an exact viewport height in px to avoid rounding/clipping issues
+    (function(){
+      function setVh() {
+        try {
+          const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
+          document.documentElement.style.setProperty('--vhpx', h + 'px');
+        } catch {}
+      }
+      setVh();
+      const vv = window.visualViewport;
+      if (vv && vv.addEventListener) {
+        vv.addEventListener('resize', setVh);
+      }
+      window.addEventListener('resize', setVh);
+      window.addEventListener('orientationchange', setVh);
+    })();
   </script>
   <style>
     :root {
@@ -48,9 +64,9 @@
 
     .app {
       /* Fill as much viewport as possible without clipping, preserving 16:9 */
-      width: min(100svw, calc(100svh * (16 / 9)));
+      width: min(100svw, calc(var(--vhpx, 100svh) * (16 / 9)));
       /* Let aspect-ratio compute exact height to avoid rounding mismatch */
-      height: auto;
+      height: min(var(--vhpx, 100svh), calc(100svw * (9 / 16)));
       aspect-ratio: 16 / 9; /* 16:9 stage */
       background: transparent;
       border: none;
