@@ -1,0 +1,35 @@
+{
+  "centerImageUrl": "images/ai_gremlin.png",
+  "gremlin": {
+    "title": "AI Gremlin",
+    "imageUrl": "images/gremlin.png"
+  },
+  "options": [
+    {
+      "id": "A",
+      "title": "Designing for the Multiverse"
+    },
+    {
+      "id": "B",
+      "title": "Emotional Design: When Products Cry"
+    },
+    {
+      "id": "C",
+      "title": "Designing for Users Who Don't Exist Yet"
+    },
+    {
+      "id": "D",
+      "title": "Dark UX Patterns I Have Embraced and Why"
+    },
+    {
+      "id": "E",
+      "title": "Biomimicry Sprint: What Would a Shrimp Design?"
+    },
+    {
+      "id": "F",
+      "title": "Slow Design Manifesto: Ship It in 10 Years"
+    }
+  ]
+}
+
+
