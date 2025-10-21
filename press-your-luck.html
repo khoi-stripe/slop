@@ -26,9 +26,8 @@
           const margin = 8; // px
           const safeW = Math.max(0, w - margin);
           const safeH = Math.max(0, h - margin);
-          const heightScale = safeH / 900;
-          const widthScale = safeW / 1600;
-          const scale = Math.max(0, Math.min(heightScale, widthScale));
+          // Height-locked scaling to eliminate snapping; allows side letterboxing if needed
+          const scale = Math.max(0, safeH / 900);
           document.documentElement.style.setProperty('--scale', String(scale));
         } catch {}
       }
