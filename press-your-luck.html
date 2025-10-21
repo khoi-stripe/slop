@@ -53,6 +53,7 @@
       --selected-yellow: #E1B033;
       --gremlin-bg: rgba(0,0,0,0.1);
       --scale: 1;
+      --gap: 10px;
     }
 
     * { box-sizing: border-box; }
@@ -101,10 +102,12 @@
     .board {
       position: relative;
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      grid-template-rows: repeat(5, 1fr);
-      gap: 10px;
+      height: 100%; /* fill the available track from .app */
+      gap: var(--gap);
       padding: 6px;
+      /* exact-fit tracks so 5 rows + 4 gaps == 100% */
+      grid-template-rows: repeat(5, minmax(0, calc((100% - (4 * var(--gap))) / 5)));
+      grid-template-columns: repeat(6, minmax(0, calc((100% - (5 * var(--gap))) / 6)));
     }
 
     /* We'll place 18 perimeter tiles and one center area spanning 4 cells x 2 rows */
