@@ -24,8 +24,10 @@
           document.documentElement.style.setProperty('--vhpx', h + 'px');
           // Safety margin so base canvas never exceeds viewport even with rounding
           const margin = 8; // px
+          // Extra top/bottom buffer to guarantee headroom even during UI jitter
+          const bufferY = 24; // px per side
           const safeW = Math.max(0, w - margin);
-          const safeH = Math.max(0, h - margin);
+          const safeH = Math.max(0, h - margin - (bufferY * 2));
           // Height-locked scaling to eliminate snapping; allows side letterboxing if needed
           const scale = Math.max(0, safeH / 900);
           document.documentElement.style.setProperty('--scale', String(scale));
