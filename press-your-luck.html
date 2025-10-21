@@ -20,7 +20,10 @@
           const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
           document.documentElement.style.setProperty('--vhpx', h + 'px');
           const w = (window.visualViewport && window.visualViewport.width) ? window.visualViewport.width : window.innerWidth;
-          const scale = Math.min(w / 1600, h / 900);
+          // Safety margins to avoid any clipping from rounding or OS UI
+          const safeW = Math.max(0, w - 2);
+          const safeH = Math.max(0, h - 2);
+          const scale = Math.min(safeW / 1600, safeH / 900);
           document.documentElement.style.setProperty('--scale', String(scale));
         } catch {}
       }
