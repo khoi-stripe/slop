@@ -278,7 +278,7 @@
     // Configuration system
     let DEFAULT_CONFIG = {
       centerImageUrl: "images/gremlin_center.png",
-      gremlin: { title: "AI Gremlin", imageUrl: "images/gremlin.png" },
+      gremlin: { title: "AI Gremlin", imageUrl: "images/gremlin.png", cackleAudioUrl: "" },
       options: [
         { id: "A", title: "Option A" },
         { id: "B", title: "Option B" },
@@ -414,11 +414,28 @@
     // Audio
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let muted = false;
+    let cackleAudioBuffer = null;
 
     function ensureAudio() {
       try {
         if (audioCtx.state === "suspended") audioCtx.resume();
       } catch {}
+    }
+
+    async function loadCackleAudio(url) {
+      if (!url) {
+        cackleAudioBuffer = null;
+        return;
+      }
+      try {
+        ensureAudio();
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        cackleAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+      } catch (e) {
+        console.error("Failed to load cackle audio:", e);
+        cackleAudioBuffer = null;
+      }
     }
 
     function playBleep() {
@@ -457,6 +474,19 @@
       if (muted) return;
       try {
         ensureAudio();
+        
+        // If we have a loaded audio file, play it
+        if (cackleAudioBuffer) {
+          const source = audioCtx.createBufferSource();
+          source.buffer = cackleAudioBuffer;
+          const gain = audioCtx.createGain();
+          gain.gain.value = 1.0;
+          source.connect(gain).connect(audioCtx.destination);
+          source.start();
+          return;
+        }
+        
+        // Otherwise, fall back to synthetic cackle
         const now = audioCtx.currentTime;
         for (let i = 0; i < 8; i++) {
           const start = now + i * 0.06;
@@ -591,7 +621,7 @@
       document.getElementById("configText").value = JSON.stringify(config, null, 2);
       assignTitles();
     });
-    document.getElementById("configSave").addEventListener("click", () => {
+    document.getElementById("configSave").addEventListener("click", async () => {
       try {
         const next = JSON.parse(document.getElementById("configText").value);
         if (!next.options || next.options.length !== 6) {
@@ -602,6 +632,12 @@
         saveConfig(config);
         centerImg.src = config.centerImageUrl || "";
         assignTitles();
+        // Reload cackle audio if configured
+        if (config.gremlin && config.gremlin.cackleAudioUrl) {
+          await loadCackleAudio(config.gremlin.cackleAudioUrl);
+        } else {
+          cackleAudioBuffer = null;
+        }
         hideConfig();
       } catch (e) {
         alert("Invalid JSON");
@@ -662,6 +698,10 @@
       setActive(activeIdx);
       placeGremlinRandom();
       updateMuteUI();
+      // Load cackle audio if configured
+      if (config.gremlin && config.gremlin.cackleAudioUrl) {
+        await loadCackleAudio(config.gremlin.cackleAudioUrl);
+      }
       // Don't auto-start; wait for user click
     })();
   </script>
