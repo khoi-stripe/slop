@@ -2,7 +2,8 @@
   "centerImageUrl": "images/gremlin_center.png",
   "gremlin": {
     "title": "AI Gremlin",
-    "imageUrl": "images/gremlin.png"
+    "imageUrl": "images/gremlin.png",
+    "cackleAudioUrl": "sounds/whammy-fogghorn-remaster.mp3"
   },
   "options": [
     {
