@@ -392,6 +392,13 @@
       selectedOptionIds.add(optId);
       tile.classList.add("selected");
       renderDisabled();
+      
+      // Dim all unselected tiles to 20%
+      tiles.forEach(t => {
+        if (t && !t.classList.contains("selected") && !t.classList.contains("disabled")) {
+          t.style.opacity = "0.2";
+        }
+      });
     }
 
     function placeGremlinRandom() {
@@ -527,6 +534,14 @@
     function startHopping() {
       if (hopTimer) clearInterval(hopTimer);
       hopping = true;
+      
+      // Restore opacity for all non-disabled tiles
+      tiles.forEach(t => {
+        if (t && !t.classList.contains("disabled")) {
+          t.style.opacity = "1";
+        }
+      });
+      
       hopTimer = setInterval(() => {
         hopOnce();
       }, hopIntervalMs);
