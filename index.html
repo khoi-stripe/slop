@@ -393,9 +393,9 @@
       tile.classList.add("selected");
       renderDisabled();
       
-      // Dim all unselected tiles to 20%
+      // Dim all tiles except the one just selected to 20%
       tiles.forEach(t => {
-        if (t && !t.classList.contains("selected") && !t.classList.contains("disabled")) {
+        if (t && !t.classList.contains("selected")) {
           t.style.opacity = "0.2";
         }
       });
@@ -535,10 +535,17 @@
       if (hopTimer) clearInterval(hopTimer);
       hopping = true;
       
-      // Restore opacity for all non-disabled tiles
+      // Restore opacity for non-disabled, non-selected tiles
+      // Keep disabled tiles at 20%, keep selected tiles at 100%
       tiles.forEach(t => {
-        if (t && !t.classList.contains("disabled")) {
-          t.style.opacity = "1";
+        if (t) {
+          if (t.classList.contains("selected")) {
+            t.style.opacity = "1"; // selected stays bright
+          } else if (t.classList.contains("disabled")) {
+            t.style.opacity = "0.2"; // disabled stays dim
+          } else {
+            t.style.opacity = "1"; // active tiles return to bright
+          }
         }
       });
       
