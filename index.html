@@ -486,16 +486,42 @@
       if (muted) return;
       try {
         ensureAudio();
-        const o = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        o.type = "triangle";
-        o.frequency.setValueAtTime(220, audioCtx.currentTime);
-        o.frequency.linearRampToValueAtTime(880, audioCtx.currentTime + 0.25);
-        g.gain.setValueAtTime(0.08, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
-        o.connect(g).connect(audioCtx.destination);
-        o.start();
-        o.stop(audioCtx.currentTime + 0.4);
+        const now = audioCtx.currentTime;
+        
+        // Main celebratory tone - louder and brighter
+        const o1 = audioCtx.createOscillator();
+        const g1 = audioCtx.createGain();
+        o1.type = "sine";
+        o1.frequency.setValueAtTime(523, now); // C5
+        o1.frequency.linearRampToValueAtTime(1047, now + 0.15); // C6
+        g1.gain.setValueAtTime(0.15, now);
+        g1.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+        o1.connect(g1).connect(audioCtx.destination);
+        o1.start(now);
+        o1.stop(now + 0.45);
+        
+        // Harmony tone
+        const o2 = audioCtx.createOscillator();
+        const g2 = audioCtx.createGain();
+        o2.type = "sine";
+        o2.frequency.setValueAtTime(659, now); // E5
+        o2.frequency.linearRampToValueAtTime(1319, now + 0.15); // E6
+        g2.gain.setValueAtTime(0.1, now);
+        g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+        o2.connect(g2).connect(audioCtx.destination);
+        o2.start(now);
+        o2.stop(now + 0.45);
+        
+        // Sparkle effect
+        const o3 = audioCtx.createOscillator();
+        const g3 = audioCtx.createGain();
+        o3.type = "sine";
+        o3.frequency.setValueAtTime(2093, now + 0.1); // C7
+        g3.gain.setValueAtTime(0.08, now + 0.1);
+        g3.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+        o3.connect(g3).connect(audioCtx.destination);
+        o3.start(now + 0.1);
+        o3.stop(now + 0.4);
       } catch {}
     }
 
