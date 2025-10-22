@@ -36,6 +36,36 @@
       height: min(100%, calc(100cqw * (9 / 16)));
       aspect-ratio: 16 / 9;
       position: relative; /* for config panel positioning */
+      border: 8px solid;
+      border-radius: 12px;
+      animation: flashingLights 0.8s infinite;
+    }
+
+    @keyframes flashingLights {
+      0%, 100% {
+        border-color: #FFD700;
+        box-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700;
+      }
+      16% {
+        border-color: #FF4500;
+        box-shadow: 0 0 20px #FF4500, 0 0 40px #FF4500;
+      }
+      33% {
+        border-color: #00FF00;
+        box-shadow: 0 0 20px #00FF00, 0 0 40px #00FF00;
+      }
+      50% {
+        border-color: #0099FF;
+        box-shadow: 0 0 20px #0099FF, 0 0 40px #0099FF;
+      }
+      66% {
+        border-color: #FF00FF;
+        box-shadow: 0 0 20px #FF00FF, 0 0 40px #FF00FF;
+      }
+      83% {
+        border-color: #FFFFFF;
+        box-shadow: 0 0 20px #FFFFFF, 0 0 40px #FFFFFF;
+      }
     }
 
     .tile {
