@@ -419,6 +419,51 @@
       tiles.forEach(t => t.classList.remove("active"));
     }
 
+    function resetAll() {
+      if (hopTimer) {
+        clearInterval(hopTimer);
+        hopTimer = null;
+      }
+      hopping = false;
+      selectedOptionIds = new Set();
+      tiles.forEach(t => {
+        if (t) {
+          t.classList.remove("disabled", "selected", "active", "gremlin");
+        }
+      });
+      assignTitles();
+      renderDisabled();
+      activeIdx = 0;
+      setActive(activeIdx);
+      placeGremlinRandom();
+      hopCount = 0;
+      startHopping();
+    }
+
+    function toggleMute() {
+      muted = !muted;
+      console.log("Sound:", muted ? "Off" : "On");
+    }
+
+    // Keyboard controls
+    window.addEventListener("keydown", (e) => {
+      if (e.key === " ") {
+        e.preventDefault();
+        if (selectedOptionIds.size >= 6) return; // all done
+        if (hopping) {
+          stopAndSelect();
+        } else {
+          startHopping();
+        }
+      } else if (e.key.toLowerCase() === "r") {
+        e.preventDefault();
+        resetAll();
+      } else if (e.key.toLowerCase() === "m" || e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        toggleMute();
+      }
+    });
+
     // Start overlay
     const startOverlay = document.getElementById("startOverlay");
     startOverlay.addEventListener("click", () => {
