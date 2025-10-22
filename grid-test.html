@@ -195,6 +195,9 @@
     // Game state
     let selectedOptionIds = new Set(); // options that have been selected
     let activeIdx = 0; // current active tile index
+    let hopping = false;
+    let hopTimer = null;
+    let hopIntervalMs = 160;
 
     function setActive(idx) {
       tiles.forEach((t, i) => {
@@ -221,6 +224,43 @@
       renderDisabled();
     }
 
+    function hopOnce() {
+      // Move to next enabled tile clockwise
+      let next = activeIdx;
+      for (let step = 0; step < tiles.length; step++) {
+        next = (next + 1) % tiles.length;
+        const t = tiles[next];
+        if (t && !selectedOptionIds.has(t.dataset.optionId)) {
+          activeIdx = next;
+          setActive(activeIdx);
+          break;
+        }
+      }
+    }
+
+    function startHopping() {
+      if (hopTimer) clearInterval(hopTimer);
+      hopping = true;
+      hopTimer = setInterval(() => {
+        hopOnce();
+      }, hopIntervalMs);
+    }
+
+    function stopHopping() {
+      hopping = false;
+      if (hopTimer) {
+        clearInterval(hopTimer);
+        hopTimer = null;
+      }
+    }
+
+    function stopAndSelect() {
+      if (!hopping) return;
+      stopHopping();
+      selectOption(activeIdx);
+      tiles.forEach(t => t.classList.remove("active"));
+    }
+
     // Initialize
     (async () => {
       await tryLoadDefaultFromConfigJson();
@@ -229,6 +269,7 @@
       assignTitles();
       renderDisabled();
       setActive(activeIdx);
+      startHopping(); // auto-start hopping
     })();
   </script>
 </body>
