@@ -52,6 +52,17 @@
       }
     }
 
+    @keyframes flashingOutline {
+      0%, 100% {
+        outline-color: #FFD700;
+        box-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700;
+      }
+      50% {
+        outline-color: #FFFFFF;
+        box-shadow: 0 0 20px #FFFFFF, 0 0 40px #FFFFFF;
+      }
+    }
+
     .tile {
       background: rgba(0,0,0,0.1);
       border: none;
@@ -83,7 +94,7 @@
       color: #000000;
       outline: 4px solid;
       outline-offset: 0px;
-      animation: flashingLights 0.8s infinite;
+      animation: flashingOutline 0.8s infinite;
     }
 
     .tile.disabled {
