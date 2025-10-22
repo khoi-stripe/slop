@@ -42,28 +42,50 @@
     .board::before {
       content: '';
       position: absolute;
-      inset: -40px;
-      border-radius: 16px;
-      background: 
-        radial-gradient(circle 20px, currentColor 50%, transparent 60%);
-      background-size: 80px 80px;
-      background-position: 0 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: currentColor;
       pointer-events: none;
       z-index: 10;
       animation: bulbsFlash 0.6s linear infinite;
-      mask: 
-        linear-gradient(to right, #000 24px, transparent 24px, transparent calc(100% - 24px), #000 calc(100% - 24px)),
-        linear-gradient(to bottom, #000 24px, transparent 24px, transparent calc(100% - 24px), #000 calc(100% - 24px));
-      mask-composite: intersect;
-      -webkit-mask: 
-        linear-gradient(to right, #000 24px, transparent 24px, transparent calc(100% - 24px), #000 calc(100% - 24px)),
-        linear-gradient(to bottom, #000 24px, transparent 24px, transparent calc(100% - 24px), #000 calc(100% - 24px));
-      -webkit-mask-composite: source-in;
+      box-shadow:
+        /* Top row */
+        80px -30px 0 0 currentColor,
+        160px -30px 0 0 currentColor,
+        240px -30px 0 0 currentColor,
+        320px -30px 0 0 currentColor,
+        400px -30px 0 0 currentColor,
+        480px -30px 0 0 currentColor,
+        560px -30px 0 0 currentColor,
+        640px -30px 0 0 currentColor,
+        /* Right column */
+        calc(100% + 10px) 50px 0 0 currentColor,
+        calc(100% + 10px) 130px 0 0 currentColor,
+        calc(100% + 10px) 210px 0 0 currentColor,
+        calc(100% + 10px) 290px 0 0 currentColor,
+        /* Bottom row */
+        80px calc(100% + 10px) 0 0 currentColor,
+        160px calc(100% + 10px) 0 0 currentColor,
+        240px calc(100% + 10px) 0 0 currentColor,
+        320px calc(100% + 10px) 0 0 currentColor,
+        400px calc(100% + 10px) 0 0 currentColor,
+        480px calc(100% + 10px) 0 0 currentColor,
+        560px calc(100% + 10px) 0 0 currentColor,
+        640px calc(100% + 10px) 0 0 currentColor,
+        /* Left column */
+        -30px 50px 0 0 currentColor,
+        -30px 130px 0 0 currentColor,
+        -30px 210px 0 0 currentColor,
+        -30px 290px 0 0 currentColor;
+      filter: drop-shadow(0 0 12px currentColor);
+      top: -30px;
+      left: 0px;
     }
 
     @keyframes bulbsFlash {
-      0%, 100% { color: #FFFFFF; filter: drop-shadow(0 0 12px #FFFFFF); }
-      50% { color: #FFD700; filter: drop-shadow(0 0 12px #FFD700); }
+      0%, 100% { color: #FFFFFF; }
+      50% { color: #FFD700; }
     }
 
     .tile {
