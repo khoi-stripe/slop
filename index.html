@@ -63,6 +63,11 @@
       /* Matches unselected tile style - no special styling */
     }
 
+    .tile.just-selected {
+      background: #E1B033;
+      color: #000000;
+    }
+
     .tile.disabled {
       opacity: 0.2;
     }
@@ -388,7 +393,7 @@
       if (selectedOptionIds.has(optId)) return; // already selected
       
       selectedOptionIds.add(optId);
-      tile.classList.add("selected");
+      tile.classList.add("selected", "just-selected");
       renderDisabled();
       
       // Dim ALL tiles to 20% first (including previously selected)
@@ -536,10 +541,11 @@
       if (hopTimer) clearInterval(hopTimer);
       hopping = true;
       
-      // Restore opacity only for active tiles
-      // Keep disabled and selected tiles at 20%
+      // Remove just-selected highlight from all tiles
       tiles.forEach(t => {
         if (t) {
+          t.classList.remove("just-selected");
+          
           if (t.classList.contains("selected") || t.classList.contains("disabled")) {
             t.style.opacity = "0.2"; // selected and disabled stay dim
           } else {
