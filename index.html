@@ -354,6 +354,9 @@
       const tile = document.querySelector(`.tile:nth-child(${i})`);
       if (tile) tiles.push(tile);
     }
+    
+    // Get board element for marquee control
+    const board = document.getElementById("board");
 
     function assignTitles() {
       // Assign 6 options to 18 tiles (3 tiles per option)
@@ -423,6 +426,9 @@
       selectedOptionIds.add(optId);
       tile.classList.add("selected", "just-selected");
       renderDisabled();
+      
+      // Pause board marquee animation
+      if (board) board.style.animationPlayState = "paused";
       
       // Dim ALL tiles to 20% first (including previously selected)
       tiles.forEach(t => {
@@ -594,6 +600,9 @@
     function startHopping() {
       if (hopTimer) clearInterval(hopTimer);
       hopping = true;
+      
+      // Resume board marquee animation
+      if (board) board.style.animationPlayState = "running";
       
       // Remove just-selected highlight from all tiles
       tiles.forEach(t => {
