@@ -393,12 +393,15 @@
       tile.classList.add("selected");
       renderDisabled();
       
-      // Dim all tiles except the one just selected to 20%
+      // Dim ALL tiles to 20% first (including previously selected)
       tiles.forEach(t => {
-        if (t && !t.classList.contains("selected")) {
+        if (t) {
           t.style.opacity = "0.2";
         }
       });
+      
+      // Then brighten only the tile just selected
+      tile.style.opacity = "1";
     }
 
     function placeGremlinRandom() {
@@ -535,14 +538,12 @@
       if (hopTimer) clearInterval(hopTimer);
       hopping = true;
       
-      // Restore opacity for non-disabled, non-selected tiles
-      // Keep disabled tiles at 20%, keep selected tiles at 100%
+      // Restore opacity only for active tiles
+      // Keep disabled and selected tiles at 20%
       tiles.forEach(t => {
         if (t) {
-          if (t.classList.contains("selected")) {
-            t.style.opacity = "1"; // selected stays bright
-          } else if (t.classList.contains("disabled")) {
-            t.style.opacity = "0.2"; // disabled stays dim
+          if (t.classList.contains("selected") || t.classList.contains("disabled")) {
+            t.style.opacity = "0.2"; // selected and disabled stay dim
           } else {
             t.style.opacity = "1"; // active tiles return to bright
           }
