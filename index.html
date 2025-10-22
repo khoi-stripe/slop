@@ -39,48 +39,57 @@
       border-radius: 12px;
     }
 
+    /* Marquee bulbs wrapper */
     .board::before {
       content: '';
       position: absolute;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: currentColor;
+      inset: -30px;
       pointer-events: none;
       z-index: 10;
-      animation: bulbsFlash 0.6s linear infinite;
-      box-shadow:
+      background-image:
         /* Top row */
-        80px -30px 0 0 currentColor,
-        160px -30px 0 0 currentColor,
-        240px -30px 0 0 currentColor,
-        320px -30px 0 0 currentColor,
-        400px -30px 0 0 currentColor,
-        480px -30px 0 0 currentColor,
-        560px -30px 0 0 currentColor,
-        640px -30px 0 0 currentColor,
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
         /* Right column */
-        calc(100% + 10px) 50px 0 0 currentColor,
-        calc(100% + 10px) 130px 0 0 currentColor,
-        calc(100% + 10px) 210px 0 0 currentColor,
-        calc(100% + 10px) 290px 0 0 currentColor,
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
         /* Bottom row */
-        80px calc(100% + 10px) 0 0 currentColor,
-        160px calc(100% + 10px) 0 0 currentColor,
-        240px calc(100% + 10px) 0 0 currentColor,
-        320px calc(100% + 10px) 0 0 currentColor,
-        400px calc(100% + 10px) 0 0 currentColor,
-        480px calc(100% + 10px) 0 0 currentColor,
-        560px calc(100% + 10px) 0 0 currentColor,
-        640px calc(100% + 10px) 0 0 currentColor,
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
         /* Left column */
-        -30px 50px 0 0 currentColor,
-        -30px 130px 0 0 currentColor,
-        -30px 210px 0 0 currentColor,
-        -30px 290px 0 0 currentColor;
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px),
+        radial-gradient(circle, currentColor 10px, transparent 10px);
+      background-size: 20px 20px;
+      background-repeat: no-repeat;
+      background-position:
+        /* Top row - evenly spaced */
+        10% 0, 20% 0, 30% 0, 40% 0, 50% 0, 60% 0, 70% 0, 80% 0,
+        /* Right column */
+        100% 20%, 100% 40%, 100% 60%, 100% 80%, 100% 100%,
+        /* Bottom row */
+        10% 100%, 20% 100%, 30% 100%, 40% 100%, 50% 100%, 60% 100%, 70% 100%, 80% 100%,
+        /* Left column */
+        0 20%, 0 40%, 0 60%, 0 80%, 0 100%;
       filter: drop-shadow(0 0 12px currentColor);
-      top: -30px;
-      left: 0px;
+      animation: bulbsFlash 0.6s linear infinite;
     }
 
     @keyframes bulbsFlash {
