@@ -29,94 +29,27 @@
       grid-template-rows: repeat(5, 1fr);
       gap: clamp(6px, 1cqi, 16px);
       padding: clamp(4px, 0.6cqi, 12px);
-      /* Fit within container, maintaining 16:9, reduced for bulb border */
-      max-height: calc(100% - 48px);
-      max-width: calc(100% - 48px);
-      width: min(calc(100% - 48px), calc((100cqh - 48px) * (16 / 9)));
-      height: min(calc(100% - 48px), calc((100cqw - 48px) * (9 / 16)));
+      /* Fit within container, maintaining 16:9 */
+      max-height: 100%;
+      max-width: 100%;
+      width: min(100%, calc(100cqh * (16 / 9)));
+      height: min(100%, calc(100cqw * (9 / 16)));
       aspect-ratio: 16 / 9;
       position: relative; /* for config panel positioning */
+      border: 8px solid;
       border-radius: 12px;
+      animation: flashingLights 0.8s infinite;
     }
 
-    /* Marquee bulbs wrapper */
-    .board::before {
-      content: '';
-      position: absolute;
-      inset: -30px;
-      pointer-events: none;
-      z-index: 10;
-      background-image:
-        /* Top row - 15 bulbs */
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        /* Right column - 9 bulbs */
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        /* Bottom row - 15 bulbs */
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        /* Left column - 9 bulbs */
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px),
-        radial-gradient(circle, currentColor 10px, transparent 10px);
-      background-size: 20px 20px;
-      background-repeat: no-repeat;
-      background-position:
-        /* Top row - centered, evenly spaced */
-        5% 50%, 11.25% 50%, 17.5% 50%, 23.75% 50%, 30% 50%, 36.25% 50%, 42.5% 50%, 48.75% 50%, 55% 50%, 61.25% 50%, 67.5% 50%, 73.75% 50%, 80% 50%, 86.25% 50%, 92.5% 50%,
-        /* Right column - centered, evenly spaced */
-        50% 10%, 50% 20%, 50% 30%, 50% 40%, 50% 50%, 50% 60%, 50% 70%, 50% 80%, 50% 90%,
-        /* Bottom row - centered, evenly spaced */
-        5% 50%, 11.25% 50%, 17.5% 50%, 23.75% 50%, 30% 50%, 36.25% 50%, 42.5% 50%, 48.75% 50%, 55% 50%, 61.25% 50%, 67.5% 50%, 73.75% 50%, 80% 50%, 86.25% 50%, 92.5% 50%,
-        /* Left column - centered, evenly spaced */
-        50% 10%, 50% 20%, 50% 30%, 50% 40%, 50% 50%, 50% 60%, 50% 70%, 50% 80%, 50% 90%;
-      filter: drop-shadow(0 0 12px currentColor);
-      animation: bulbsFlash 0.6s linear infinite;
-    }
-
-    @keyframes bulbsFlash {
-      0%, 100% { color: #FFFFFF; }
-      50% { color: #FFD700; }
+    @keyframes flashingLights {
+      0%, 100% {
+        border-color: #FFD700;
+        box-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700;
+      }
+      50% {
+        border-color: #FFFFFF;
+        box-shadow: 0 0 20px #FFFFFF, 0 0 40px #FFFFFF;
+      }
     }
 
     .tile {
