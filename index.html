@@ -44,47 +44,11 @@
       position: absolute;
       inset: -28px;
       border-radius: 16px;
-      background: 
-        /* Top edge */
-        repeating-linear-gradient(90deg, transparent 0px, transparent 20px, currentColor 20px, currentColor 40px, transparent 40px, transparent 60px),
-        /* Bottom edge */
-        repeating-linear-gradient(90deg, transparent 0px, transparent 20px, currentColor 20px, currentColor 40px, transparent 40px, transparent 60px),
-        /* Left edge */
-        repeating-linear-gradient(0deg, transparent 0px, transparent 20px, currentColor 20px, currentColor 40px, transparent 40px, transparent 60px),
-        /* Right edge */
-        repeating-linear-gradient(0deg, transparent 0px, transparent 20px, currentColor 20px, currentColor 40px, transparent 40px, transparent 60px);
-      background-size: 
-        100% 20px,
-        100% 20px,
-        20px 100%,
-        20px 100%;
-      background-position: 
-        0 0,
-        0 100%,
-        0 0,
-        100% 0;
-      background-repeat: no-repeat;
-      -webkit-mask: 
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      padding: 20px;
-      pointer-events: none;
-      z-index: 10;
-      animation: bulbsFlash 0.9s linear infinite;
-    }
-
-    .board::after {
-      content: '';
-      position: absolute;
-      inset: -28px;
-      border-radius: 16px;
       background-image: radial-gradient(circle 8px, currentColor 60%, transparent 70%);
       background-size: 60px 60px;
       background-position: 10px 10px;
       pointer-events: none;
-      z-index: 11;
+      z-index: 10;
       animation: bulbsFlash 0.9s linear infinite;
       -webkit-mask: 
         linear-gradient(#fff 0 0) content-box,
