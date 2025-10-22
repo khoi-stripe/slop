@@ -169,12 +169,25 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
     
-    .center img {
+    .center img,
+    .center video {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      position: absolute;
+      inset: 0;
+    }
+
+    .center video {
+      transform: scaleX(-1); /* Mirror effect for camera */
+    }
+
+    .center img.hidden,
+    .center video.hidden {
+      display: none;
     }
 
     /* Start overlay */
@@ -289,7 +302,9 @@
         <span>Space: <span class="kbd">stop/select</span></span>
         <span style="margin-left:10px;">R: <span class="kbd">reset</span></span>
         <span style="margin-left:10px;">E: <span class="kbd">edit config</span></span>
+        <span style="margin-left:10px;">C: <span class="kbd">toggle camera</span></span>
         <button class="btn" id="muteBtn" style="margin-left:10px;">Sound: On</button>
+        <button class="btn" id="cameraBtn" style="margin-left:10px;">Camera: Off</button>
       </div>
     </div>
 
@@ -323,6 +338,7 @@
       <!-- Center tile -->
       <div class="center" id="center">
         <img id="centerImage" alt="Center" />
+        <video id="centerVideo" class="hidden" autoplay playsinline muted></video>
       </div>
 
       <!-- Config panel -->
@@ -384,6 +400,61 @@
 
     let config;
     const centerImg = document.getElementById("centerImage");
+    const centerVideo = document.getElementById("centerVideo");
+
+    // Camera functionality
+    let cameraActive = false;
+    let cameraStream = null;
+
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          } 
+        });
+        cameraStream = stream;
+        centerVideo.srcObject = stream;
+        cameraActive = true;
+        centerImg.classList.add('hidden');
+        centerVideo.classList.remove('hidden');
+        updateCameraUI();
+      } catch (err) {
+        console.error('Camera access denied or unavailable:', err);
+        alert('Camera access denied or unavailable. Make sure you\'re using HTTPS or localhost.');
+        cameraActive = false;
+        updateCameraUI();
+      }
+    }
+
+    function stopCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+      centerVideo.srcObject = null;
+      cameraActive = false;
+      centerVideo.classList.add('hidden');
+      centerImg.classList.remove('hidden');
+      updateCameraUI();
+    }
+
+    function toggleCamera() {
+      if (cameraActive) {
+        stopCamera();
+      } else {
+        startCamera();
+      }
+    }
+
+    function updateCameraUI() {
+      const cameraBtn = document.getElementById("cameraBtn");
+      if (cameraBtn) {
+        cameraBtn.textContent = cameraActive ? "Camera: On" : "Camera: Off";
+      }
+    }
 
     // Get all perimeter tiles (numbered 1-18)
     const tiles = Array.from(document.querySelectorAll('.tile')).filter(t => !t.classList.contains('center'));
@@ -771,6 +842,9 @@
     // Mute button
     document.getElementById("muteBtn").addEventListener("click", toggleMute);
 
+    // Camera button
+    document.getElementById("cameraBtn").addEventListener("click", toggleCamera);
+
     // Keyboard controls
     window.addEventListener("keydown", (e) => {
       const panel = document.getElementById("configPanel");
@@ -798,6 +872,9 @@
       } else if (e.key.toLowerCase() === "e") {
         e.preventDefault();
         showConfig();
+      } else if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        toggleCamera();
       } else if (e.key.toLowerCase() === "h") {
         e.preventDefault();
         toggleHeader();
@@ -883,6 +960,12 @@
       window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(generateBoardLights, 100);
+      });
+      // Cleanup camera when page is closed
+      window.addEventListener('beforeunload', () => {
+        if (cameraActive) {
+          stopCamera();
+        }
       });
       // Don't auto-start; wait for user click
     })();
