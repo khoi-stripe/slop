@@ -36,9 +36,7 @@
       height: min(100%, calc(100cqw * (9 / 16)));
       aspect-ratio: 16 / 9;
       position: relative; /* for config panel positioning */
-      border: 4px solid;
       border-radius: 12px;
-      animation: flashingLights 0.8s infinite;
     }
 
     @keyframes flashingLights {
@@ -49,6 +47,42 @@
       50% {
         border-color: #FFFFFF;
         box-shadow: 0 0 20px #FFFFFF, 0 0 40px #FFFFFF;
+      }
+    }
+
+    /* Marquee lights */
+    .board-lights {
+      position: absolute;
+      inset: -20px; /* Extend outside board to create spacing */
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .board-light {
+      position: absolute;
+      width: clamp(16px, 2cqi, 24px);
+      height: clamp(16px, 2cqi, 24px);
+      border-radius: 50%;
+      background: #FFD700;
+      box-shadow: 0 0 15px #FFD700,
+                  0 0 30px #FFD700,
+                  0 0 45px rgba(255,215,0,0.8);
+      animation: boardLightPulse 0.3s infinite;
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes boardLightPulse {
+      0%, 100% {
+        opacity: 0.3;
+        transform: translate(-50%, -50%) scale(0.8);
+        box-shadow: 0 0 5px rgba(255,215,0,0.3);
+      }
+      50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 15px #FFD700,
+                    0 0 30px #FFD700,
+                    0 0 45px rgba(255,215,0,0.8);
       }
     }
 
@@ -260,6 +294,9 @@
     </div>
 
     <div class="board" id="board">
+      <!-- Marquee lights container -->
+      <div class="board-lights" id="boardLights"></div>
+      
       <!-- Perimeter tiles -->
       <div class="tile" style="grid-column: 1; grid-row: 1;">1</div>
       <div class="tile" style="grid-column: 2; grid-row: 1;">2</div>
@@ -349,11 +386,7 @@
     const centerImg = document.getElementById("centerImage");
 
     // Get all perimeter tiles (numbered 1-18)
-    const tiles = [];
-    for (let i = 1; i <= 18; i++) {
-      const tile = document.querySelector(`.tile:nth-child(${i})`);
-      if (tile) tiles.push(tile);
-    }
+    const tiles = Array.from(document.querySelectorAll('.tile')).filter(t => !t.classList.contains('center'));
     
     // Get board element for marquee control
     const board = document.getElementById("board");
@@ -779,6 +812,54 @@
       startHopping();
     });
 
+    // Board lights generation
+    function generateBoardLights() {
+      const boardLightsContainer = document.getElementById('boardLights');
+      if (!boardLightsContainer) return;
+      
+      boardLightsContainer.innerHTML = '';
+      const width = boardLightsContainer.offsetWidth;
+      const height = boardLightsContainer.offsetHeight;
+      const spacing = Math.min(width, height) * 0.05; // Responsive spacing
+      const offset = 10; // Distance from outer edge of container
+
+      const lights = [];
+
+      // Top edge
+      for (let x = offset; x < width - offset; x += spacing) {
+        lights.push(createBoardLight(x, offset));
+      }
+
+      // Right edge
+      for (let y = offset; y < height - offset; y += spacing) {
+        lights.push(createBoardLight(width - offset, y));
+      }
+
+      // Bottom edge
+      for (let x = width - offset; x > offset; x -= spacing) {
+        lights.push(createBoardLight(x, height - offset));
+      }
+
+      // Left edge
+      for (let y = height - offset; y > offset; y -= spacing) {
+        lights.push(createBoardLight(offset, y));
+      }
+
+      // Add all lights with staggered animation
+      lights.forEach((light, index) => {
+        light.style.animationDelay = `${(index * 0.1) % 1.2}s`;
+        boardLightsContainer.appendChild(light);
+      });
+    }
+
+    function createBoardLight(x, y) {
+      const light = document.createElement('div');
+      light.className = 'board-light';
+      light.style.left = `${x}px`;
+      light.style.top = `${y}px`;
+      return light;
+    }
+
     // Initialize
     (async () => {
       await tryLoadDefaultFromConfigJson();
@@ -793,6 +874,16 @@
       if (config.gremlin && config.gremlin.cackleAudioUrl) {
         await loadCackleAudio(config.gremlin.cackleAudioUrl);
       }
+      // Generate board lights after DOM is fully rendered
+      setTimeout(() => {
+        generateBoardLights();
+      }, 100);
+      // Regenerate lights on window resize
+      let resizeTimeout;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(generateBoardLights, 100);
+      });
       // Don't auto-start; wait for user click
     })();
   </script>
