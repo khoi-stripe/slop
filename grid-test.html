@@ -84,9 +84,92 @@
       <div class="tile" style="grid-column: 1; grid-row: 2;">18</div>
       
       <!-- Center tile -->
-      <div class="center tile">CENTER</div>
+      <div class="center tile" id="center">
+        <img id="centerImage" alt="Center" style="width: 100%; height: 100%; object-fit: contain;" />
+      </div>
     </div>
   </div>
+
+  <script>
+    // Configuration system
+    let DEFAULT_CONFIG = {
+      centerImageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Emoji_u1f389.svg/512px-Emoji_u1f389.svg.png",
+      gremlin: { title: "AI Gremlin", imageUrl: "" },
+      options: [
+        { id: "A", title: "Option A" },
+        { id: "B", title: "Option B" },
+        { id: "C", title: "Option C" },
+        { id: "D", title: "Option D" },
+        { id: "E", title: "Option E" },
+        { id: "F", title: "Option F" }
+      ]
+    };
+
+    const STORAGE_KEY = "pyl_config_v1";
+
+    async function tryLoadDefaultFromConfigJson() {
+      try {
+        const res = await fetch('./config.json', { cache: 'no-store' });
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!json || !Array.isArray(json.options) || json.options.length !== 6) return;
+        DEFAULT_CONFIG = json;
+      } catch {}
+    }
+
+    function loadConfig() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(DEFAULT_CONFIG);
+        const cfg = JSON.parse(raw);
+        if (!cfg.options || cfg.options.length !== 6) return structuredClone(DEFAULT_CONFIG);
+        return cfg;
+      } catch (e) {
+        return structuredClone(DEFAULT_CONFIG);
+      }
+    }
+
+    let config;
+    const centerImg = document.getElementById("centerImage");
+
+    // Get all perimeter tiles (numbered 1-18)
+    const tiles = [];
+    for (let i = 1; i <= 18; i++) {
+      const tile = document.querySelector(`.tile:nth-child(${i})`);
+      if (tile) tiles.push(tile);
+    }
+
+    function assignTitles() {
+      // Assign 6 options to 18 tiles (3 tiles per option)
+      const optionIds = config.options.map(o => o.id);
+      const indices = Array.from({length: 18}, (_, i) => i);
+      // Shuffle
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+      
+      const byId = Object.fromEntries(config.options.map(o => [o.id, o]));
+      
+      for (let k = 0; k < optionIds.length; k++) {
+        for (let rep = 0; rep < 3; rep++) {
+          const tileIdx = indices[k * 3 + rep];
+          const tile = tiles[tileIdx];
+          const opt = byId[optionIds[k]];
+          tile.textContent = opt.title;
+          tile.dataset.optionId = optionIds[k];
+        }
+      }
+    }
+
+    // Initialize
+    (async () => {
+      await tryLoadDefaultFromConfigJson();
+      config = loadConfig();
+      centerImg.src = config.centerImageUrl || "";
+      assignTitles();
+    })();
+  </script>
 </body>
 </html>
 
