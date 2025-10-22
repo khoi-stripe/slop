@@ -278,6 +278,70 @@
       });
     }
 
+    // Audio
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let muted = false;
+
+    function ensureAudio() {
+      try {
+        if (audioCtx.state === "suspended") audioCtx.resume();
+      } catch {}
+    }
+
+    function playBleep() {
+      if (muted) return;
+      try {
+        ensureAudio();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = "square";
+        o.frequency.value = 600 + Math.random() * 200;
+        g.gain.value = 0.05;
+        o.connect(g).connect(audioCtx.destination);
+        o.start();
+        o.stop(audioCtx.currentTime + 0.06);
+      } catch {}
+    }
+
+    function playSelect() {
+      if (muted) return;
+      try {
+        ensureAudio();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = "triangle";
+        o.frequency.setValueAtTime(220, audioCtx.currentTime);
+        o.frequency.linearRampToValueAtTime(880, audioCtx.currentTime + 0.25);
+        g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
+        o.connect(g).connect(audioCtx.destination);
+        o.start();
+        o.stop(audioCtx.currentTime + 0.4);
+      } catch {}
+    }
+
+    function playCackle() {
+      if (muted) return;
+      try {
+        ensureAudio();
+        const now = audioCtx.currentTime;
+        for (let i = 0; i < 8; i++) {
+          const start = now + i * 0.06;
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          o.type = "square";
+          const base = 380 + Math.random() * 320;
+          o.frequency.setValueAtTime(base, start);
+          o.frequency.exponentialRampToValueAtTime(base * 0.6, start + 0.05);
+          g.gain.setValueAtTime(0.09, start);
+          g.gain.exponentialRampToValueAtTime(0.0001, start + 0.08);
+          o.connect(g).connect(audioCtx.destination);
+          o.start(start);
+          o.stop(start + 0.09);
+        }
+      } catch {}
+    }
+
     function hopOnce() {
       // Move to next enabled tile clockwise
       let next = activeIdx;
@@ -287,6 +351,7 @@
         if (t && !selectedOptionIds.has(t.dataset.optionId)) {
           activeIdx = next;
           setActive(activeIdx);
+          playBleep();
           break;
         }
       }
@@ -318,11 +383,12 @@
       // Check if gremlin hit
       if (activeIdx === gremlinIdx) {
         // Gremlin hit! Pause but don't select
+        playCackle();
         tiles.forEach(t => t.classList.remove("active"));
-        console.log("Gremlin hit!");
         return;
       }
       
+      playSelect();
       selectOption(activeIdx);
       tiles.forEach(t => t.classList.remove("active"));
     }
