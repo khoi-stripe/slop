@@ -106,9 +106,35 @@
       max-width: 100%;
       max-height: 100%;
     }
+
+    /* Start overlay */
+    #startOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: grid;
+      place-items: center;
+      z-index: 1000;
+      cursor: pointer;
+    }
+
+    #startOverlay .message {
+      font-size: 32px;
+      font-weight: 700;
+      color: #E1B033;
+      text-align: center;
+      padding: 32px;
+    }
+
+    #startOverlay.hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
+  <div id="startOverlay">
+    <div class="message">Click to Start</div>
+  </div>
   <div class="app">
     <div class="board" id="board">
       <!-- Perimeter tiles -->
@@ -393,6 +419,14 @@
       tiles.forEach(t => t.classList.remove("active"));
     }
 
+    // Start overlay
+    const startOverlay = document.getElementById("startOverlay");
+    startOverlay.addEventListener("click", () => {
+      ensureAudio();
+      startOverlay.classList.add("hidden");
+      startHopping();
+    });
+
     // Initialize
     (async () => {
       await tryLoadDefaultFromConfigJson();
@@ -402,7 +436,7 @@
       renderDisabled();
       setActive(activeIdx);
       placeGremlinRandom();
-      startHopping(); // auto-start hopping
+      // Don't auto-start; wait for user click
     })();
   </script>
 </body>
