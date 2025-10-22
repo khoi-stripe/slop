@@ -49,6 +49,22 @@
       font-size: clamp(14px, 1.25cqi, 40px);
       font-weight: 700;
       line-height: 1.2;
+      transition: box-shadow 120ms ease, transform 80ms ease, background 180ms ease, opacity 180ms ease;
+    }
+
+    .tile.active {
+      box-shadow: 0 0 0 3px rgba(251,191,36,0.45), 0 0 24px 4px rgba(245,158,11,0.35);
+      background: rgba(255,255,255,0.15);
+    }
+
+    .tile.selected {
+      background: #E1B033;
+      color: #000000;
+      opacity: 1;
+    }
+
+    .tile.disabled {
+      opacity: 0.2;
     }
 
     .center {
@@ -176,12 +192,43 @@
       }
     }
 
+    // Game state
+    let selectedOptionIds = new Set(); // options that have been selected
+    let activeIdx = 0; // current active tile index
+
+    function setActive(idx) {
+      tiles.forEach((t, i) => {
+        if (t) t.classList.toggle("active", i === idx);
+      });
+    }
+
+    function renderDisabled() {
+      tiles.forEach((t) => {
+        if (!t) return;
+        const disabled = selectedOptionIds.has(t.dataset.optionId);
+        t.classList.toggle("disabled", disabled);
+      });
+    }
+
+    function selectOption(tileIdx) {
+      const tile = tiles[tileIdx];
+      if (!tile) return;
+      const optId = tile.dataset.optionId;
+      if (selectedOptionIds.has(optId)) return; // already selected
+      
+      selectedOptionIds.add(optId);
+      tile.classList.add("selected");
+      renderDisabled();
+    }
+
     // Initialize
     (async () => {
       await tryLoadDefaultFromConfigJson();
       config = loadConfig();
       centerImg.src = config.centerImageUrl || "";
       assignTitles();
+      renderDisabled();
+      setActive(activeIdx);
     })();
   </script>
 </body>
