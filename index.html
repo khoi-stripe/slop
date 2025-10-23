@@ -364,6 +364,7 @@
     let DEFAULT_CONFIG = {
       centerImageUrl: "images/gremlin_center.png",
       gremlin: { title: "AI Gremlin", imageUrl: "images/gremlin.png", cackleAudioUrl: "" },
+      randomizeTilesEveryNHops: 10, // Set to 0 to disable tile randomization
       options: [
         { id: "A", title: "Option A" },
         { id: "B", title: "Option B" },
@@ -494,6 +495,64 @@
           tile.appendChild(gimg);
           
           tile.dataset.optionId = optionIds[k];
+        }
+      }
+    }
+
+    function randomizeTiles() {
+      // Randomize the assignment of options to tiles while preserving selection state
+      // Only randomize tiles that haven't been selected yet
+      const unselectedTiles = [];
+      const unselectedOptionIds = [];
+      
+      // Collect unselected tiles and their option IDs
+      tiles.forEach((tile) => {
+        if (!tile || selectedOptionIds.has(tile.dataset.optionId)) return;
+        const optId = tile.dataset.optionId;
+        if (!unselectedOptionIds.includes(optId)) {
+          unselectedOptionIds.push(optId);
+        }
+        unselectedTiles.push(tile);
+      });
+      
+      if (unselectedTiles.length === 0) return;
+      
+      // Shuffle the tiles array
+      for (let i = unselectedTiles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [unselectedTiles[i], unselectedTiles[j]] = [unselectedTiles[j], unselectedTiles[i]];
+      }
+      
+      const byId = Object.fromEntries(config.options.map(o => [o.id, o]));
+      const tilesPerOption = Math.floor(unselectedTiles.length / unselectedOptionIds.length);
+      
+      // Reassign options to shuffled tiles
+      let tileIdx = 0;
+      for (const optId of unselectedOptionIds) {
+        const opt = byId[optId];
+        const count = tilesPerOption + (tileIdx < unselectedTiles.length % unselectedOptionIds.length ? 1 : 0);
+        
+        for (let i = 0; i < count && tileIdx < unselectedTiles.length; i++, tileIdx++) {
+          const tile = unselectedTiles[tileIdx];
+          
+          // Preserve gremlin and active states
+          const wasGremlin = tile.classList.contains('gremlin');
+          const wasActive = tile.classList.contains('active');
+          
+          // Update tile content
+          const textSpan = tile.querySelector('.tile-text');
+          if (textSpan) {
+            textSpan.textContent = opt.title;
+          }
+          tile.dataset.optionId = optId;
+          
+          // Restore states
+          if (wasGremlin) {
+            tile.classList.add('gremlin');
+          }
+          if (wasActive) {
+            tile.classList.add('active');
+          }
         }
       }
     }
@@ -696,9 +755,19 @@
           break;
         }
       }
+      
+      hopCount++;
+      
       // Move gremlin every 6th hop
-      hopCount = (hopCount + 1) % 6;
-      if (hopCount === 0) placeGremlinRandom();
+      if (hopCount % 6 === 0) {
+        placeGremlinRandom();
+      }
+      
+      // Randomize tiles every N hops if configured
+      const randomizeInterval = config.randomizeTilesEveryNHops || 0;
+      if (randomizeInterval > 0 && hopCount % randomizeInterval === 0) {
+        randomizeTiles();
+      }
     }
 
     function startHopping() {
