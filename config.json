@@ -5,7 +5,7 @@
     "imageUrl": "images/gremlin.png",
     "cackleAudioUrl": "sounds/whammy-fogghorn-remaster.mp3"
   },
-  "randomizeTilesEveryNHops": 10,
+  "randomizeTilesEveryNHops": 12,
   "options": [
     {
       "id": "A",
