@@ -667,10 +667,9 @@
 
     // Reveal mode functions
     function setupRevealSequence() {
-      // Create sequence: 6 regular options + 1 gremlin (last)
+      // Create sequence: 6 regular options only (no gremlin)
       const options = config.options.map(o => ({ id: o.id, title: o.title }));
-      const gremlin = { id: 'gremlin', title: config.gremlin.title };
-      revealSequence = [...options, gremlin];
+      revealSequence = [...options];
       revealIndex = 0;
     }
 
@@ -713,27 +712,16 @@
       const option = revealSequence[revealIndex];
       const revealTextEl = document.getElementById('revealText');
       const revealTitleEl = document.getElementById('revealTitle');
-      const gremlinRevealImg = document.getElementById('gremlinRevealImg');
       
-      // Check if this is the gremlin option (last one)
-      if (option.id === 'gremlin') {
-        // Show gremlin.png instead of text
-        revealTitleEl.textContent = '';
-        gremlinRevealImg.src = config.gremlin?.imageUrl || 'images/gremlin.png';
-        gremlinRevealImg.classList.remove('hidden');
-      } else {
-        // Show the option title as text with orphan prevention
-        revealTitleEl.textContent = preventOrphans(option.title);
-        gremlinRevealImg.classList.add('hidden');
-      }
-      
+      // Show the option title as text with orphan prevention
+      revealTitleEl.textContent = preventOrphans(option.title);
       revealTextEl.classList.add('active');
 
       playBleep();
       revealIndex++;
     }
 
-    async function endRevealMode() {
+    function endRevealMode() {
       revealMode = false;
       
       // Hide reveal text
@@ -744,17 +732,10 @@
         if (t) t.classList.add('visible');
       });
       
-      // Automatically start the camera when game begins
-      if (!cameraActive) {
-        await startCamera();
-      }
-      
-      // Show center image/video (based on camera state)
-      if (cameraActive) {
-        centerVideo.classList.remove('hidden');
-      } else {
-        centerImg.classList.remove('hidden');
-      }
+      // Show center image (gremlin_center.png) by default
+      // User can manually enable camera with C key
+      centerImg.classList.remove('hidden');
+      centerVideo.classList.add('hidden');
       
       // Start the game
       startHopping();
@@ -980,14 +961,12 @@
       
       // Reset center square to show gremlin_center.png
       const revealTextEl = document.getElementById('revealText');
-      const gremlinRevealImg = document.getElementById('gremlinRevealImg');
       
       revealTextEl.classList.remove('active');
-      gremlinRevealImg.classList.add('hidden');
       centerImg.classList.remove('hidden');
       centerVideo.classList.add('hidden');
       
-      // Restart reveal mode (which will hide the center image)
+      // Restart reveal mode (which will keep the center image visible initially)
       startRevealMode();
     }
 
