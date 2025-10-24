@@ -693,8 +693,8 @@
       setupRevealSequence();
       
       // Tiles are already hidden by default CSS
-      // Hide center image and video, show red background
-      centerImg.classList.add('hidden');
+      // Keep gremlin_center.png visible until first spacebar press
+      // centerImg stays visible
       centerVideo.classList.add('hidden');
     }
 
@@ -705,12 +705,15 @@
         return;
       }
 
+      // Hide center image on first reveal (transition from gremlin_center.png to first option)
+      if (revealIndex === 0) {
+        centerImg.classList.add('hidden');
+      }
+
       const option = revealSequence[revealIndex];
       const revealTextEl = document.getElementById('revealText');
       const revealTitleEl = document.getElementById('revealTitle');
       const gremlinRevealImg = document.getElementById('gremlinRevealImg');
-
-      // Center image is already hidden in startRevealMode
       
       // Check if this is the gremlin option (last one)
       if (option.id === 'gremlin') {
