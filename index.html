@@ -63,10 +63,12 @@
       width: clamp(16px, 2cqi, 24px);
       height: clamp(16px, 2cqi, 24px);
       border-radius: 50%;
-      background: #FFD700;
+      background: radial-gradient(circle at 30% 30%, #FFFFFF, #FFD700 50%, #CC9900 100%);
       box-shadow: 0 0 15px #FFD700,
                   0 0 30px #FFD700,
-                  0 0 45px rgba(255,215,0,0.8);
+                  0 0 45px rgba(255,215,0,0.8),
+                  inset -2px -2px 4px rgba(0,0,0,0.2),
+                  inset 1px 1px 2px rgba(255,255,255,0.5);
       animation: boardLightPulse 0.3s infinite;
       transform: translate(-50%, -50%);
     }
@@ -75,14 +77,20 @@
       0%, 100% {
         opacity: 0.3;
         transform: translate(-50%, -50%) scale(0.8);
-        box-shadow: 0 0 5px rgba(255,215,0,0.3);
+        background: radial-gradient(circle at 30% 30%, #FFE680, #FFD700 50%, #CC9900 100%);
+        box-shadow: 0 0 5px rgba(255,215,0,0.3),
+                    inset -2px -2px 4px rgba(0,0,0,0.3),
+                    inset 1px 1px 2px rgba(255,255,255,0.3);
       }
       50% {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
-        box-shadow: 0 0 15px #FFD700,
-                    0 0 30px #FFD700,
-                    0 0 45px rgba(255,215,0,0.8);
+        background: radial-gradient(circle at 30% 30%, #FFFFFF, #FFFACD 40%, #FFD700 100%);
+        box-shadow: 0 0 15px #FFFFFF,
+                    0 0 30px #FFFFFF,
+                    0 0 45px rgba(255,255,255,0.8),
+                    inset -2px -2px 4px rgba(0,0,0,0.15),
+                    inset 2px 2px 4px rgba(255,255,255,0.8);
       }
     }
 
@@ -110,16 +118,20 @@
       line-height: 1.2;
       transition: box-shadow 120ms ease, transform 80ms ease, background 180ms ease, opacity 180ms ease;
       position: relative; /* needed for absolute positioned gremlin */
+      /* Hide tiles by default until reveal sequence completes */
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .tile.visible {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .tile.active {
       box-shadow: 0 0 0 3px rgba(251,191,36,0.45), 0 0 24px 4px rgba(245,158,11,0.35);
       outline: 4px solid #F59E34;
       outline-offset: 0px;
-    }
-
-    .tile.selected {
-      /* Matches unselected tile style - no special styling */
     }
 
     .tile.just-selected {
@@ -130,11 +142,11 @@
       animation: flashingOutline 0.8s infinite;
     }
 
-    .tile.disabled {
+    .tile.visible.disabled {
       opacity: 0.2;
     }
 
-    .tile.disabled.selected {
+    .tile.visible.disabled.selected {
       opacity: 1; /* selected tile stays fully visible */
     }
 
@@ -161,7 +173,7 @@
     .center {
       grid-column: 2 / span 4;
       grid-row: 2 / span 3;
-      background: radial-gradient(circle, #1c2347, #12162a);
+      background: rgba(0,0,0,0.1);
       border: none;
       border-radius: 8px;
       padding: 0;
@@ -187,29 +199,51 @@
 
     .center img.hidden,
     .center video.hidden {
-      display: none;
+      display: none !important;
     }
+
+    /* Reveal mode text */
+    .reveal-text {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(16px, 3cqi, 48px);
+      text-align: center;
+      z-index: 10;
+      background: rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+
+    .reveal-text.active {
+      display: flex;
+    }
+
+    .reveal-text .option-title {
+      font-size: clamp(24px, 3.5cqi, 64px);
+      font-weight: 700;
+      color: #e8ecf6;
+      line-height: 1.2;
+      /* Prevent orphans and widows */
+      text-wrap: balance;
+      orphans: 2;
+      widows: 2;
+      word-break: normal;
+      overflow-wrap: break-word;
+    }
+
+    .reveal-text .gremlin-reveal-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
 
     /* Start overlay */
     #startOverlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.9);
-      display: grid;
-      place-items: center;
-      z-index: 1000;
-      cursor: pointer;
-    }
-
-    #startOverlay .message {
-      font-size: 32px;
-      font-weight: 700;
-      color: #E1B033;
-      text-align: center;
-      padding: 32px;
-    }
-
-    #startOverlay.hidden {
       display: none;
     }
 
@@ -337,8 +371,12 @@
       
       <!-- Center tile -->
       <div class="center" id="center">
-        <img id="centerImage" alt="Center" />
+        <img id="centerImage" alt="Center" style="display: none;" />
         <video id="centerVideo" class="hidden" autoplay playsinline muted></video>
+        <div class="reveal-text" id="revealText">
+          <div class="option-title" id="revealTitle"></div>
+          <img class="gremlin-reveal-img hidden" id="gremlinRevealImg" alt="AI Gremlin" />
+        </div>
       </div>
 
       <!-- Config panel -->
@@ -566,6 +604,11 @@
     let gremlinIdx = -1; // current gremlin tile index
     let hopCount = 0;
 
+    // Reveal mode state
+    let revealMode = true;
+    let revealIndex = 0;
+    let revealSequence = []; // Order of options to reveal
+
     function setActive(idx) {
       tiles.forEach((t, i) => {
         if (t) t.classList.toggle("active", i === idx);
@@ -620,6 +663,98 @@
       tiles.forEach((t, i) => {
         if (t) t.classList.toggle("gremlin", i === gremlinIdx);
       });
+    }
+
+    // Reveal mode functions
+    function setupRevealSequence() {
+      // Create sequence: 6 regular options + 1 gremlin (last)
+      const options = config.options.map(o => ({ id: o.id, title: o.title }));
+      const gremlin = { id: 'gremlin', title: config.gremlin.title };
+      revealSequence = [...options, gremlin];
+      revealIndex = 0;
+    }
+
+    // Prevent orphans by adding non-breaking spaces between last 2-3 words
+    function preventOrphans(text) {
+      if (!text) return text;
+      const words = text.trim().split(/\s+/);
+      if (words.length <= 2) return text;
+      
+      // Replace spaces in the last 3 words with non-breaking spaces
+      const lastWords = words.slice(-3);
+      const restWords = words.slice(0, -3);
+      
+      return restWords.join(' ') + (restWords.length > 0 ? '\u00A0' : '') + lastWords.join('\u00A0');
+    }
+
+    function startRevealMode() {
+      revealMode = true;
+      revealIndex = 0;
+      setupRevealSequence();
+      
+      // Tiles are already hidden by default CSS
+      // Hide center image and video, show red background
+      centerImg.classList.add('hidden');
+      centerVideo.classList.add('hidden');
+    }
+
+    function revealNextOption() {
+      if (revealIndex >= revealSequence.length) {
+        // All revealed, start the game
+        endRevealMode();
+        return;
+      }
+
+      const option = revealSequence[revealIndex];
+      const revealTextEl = document.getElementById('revealText');
+      const revealTitleEl = document.getElementById('revealTitle');
+      const gremlinRevealImg = document.getElementById('gremlinRevealImg');
+
+      // Center image is already hidden in startRevealMode
+      
+      // Check if this is the gremlin option (last one)
+      if (option.id === 'gremlin') {
+        // Show gremlin.png instead of text
+        revealTitleEl.textContent = '';
+        gremlinRevealImg.src = config.gremlin?.imageUrl || 'images/gremlin.png';
+        gremlinRevealImg.classList.remove('hidden');
+      } else {
+        // Show the option title as text with orphan prevention
+        revealTitleEl.textContent = preventOrphans(option.title);
+        gremlinRevealImg.classList.add('hidden');
+      }
+      
+      revealTextEl.classList.add('active');
+
+      playBleep();
+      revealIndex++;
+    }
+
+    async function endRevealMode() {
+      revealMode = false;
+      
+      // Hide reveal text
+      document.getElementById('revealText').classList.remove('active');
+      
+      // Show all tiles by adding visible class
+      tiles.forEach(t => {
+        if (t) t.classList.add('visible');
+      });
+      
+      // Automatically start the camera when game begins
+      if (!cameraActive) {
+        await startCamera();
+      }
+      
+      // Show center image/video (based on camera state)
+      if (cameraActive) {
+        centerVideo.classList.remove('hidden');
+      } else {
+        centerImg.classList.remove('hidden');
+      }
+      
+      // Start the game
+      startHopping();
     }
 
     // Audio
@@ -829,7 +964,8 @@
       selectedOptionIds = new Set();
       tiles.forEach(t => {
         if (t) {
-          t.classList.remove("disabled", "selected", "active", "gremlin");
+          t.classList.remove("disabled", "selected", "active", "gremlin", "just-selected", "visible");
+          t.style.opacity = ""; // Reset opacity
         }
       });
       assignTitles();
@@ -838,7 +974,18 @@
       setActive(activeIdx);
       placeGremlinRandom();
       hopCount = 0;
-      startHopping();
+      
+      // Reset center square to show gremlin_center.png
+      const revealTextEl = document.getElementById('revealText');
+      const gremlinRevealImg = document.getElementById('gremlinRevealImg');
+      
+      revealTextEl.classList.remove('active');
+      gremlinRevealImg.classList.add('hidden');
+      centerImg.classList.remove('hidden');
+      centerVideo.classList.add('hidden');
+      
+      // Restart reveal mode (which will hide the center image)
+      startRevealMode();
     }
 
     function toggleMute() {
@@ -881,6 +1028,7 @@
     document.getElementById("configReset").addEventListener("click", () => {
       config = structuredClone(DEFAULT_CONFIG);
       centerImg.src = config.centerImageUrl;
+      centerImg.style.display = 'block';
       saveConfig(config);
       document.getElementById("configText").value = JSON.stringify(config, null, 2);
       assignTitles();
@@ -895,6 +1043,7 @@
         config = next;
         saveConfig(config);
         centerImg.src = config.centerImageUrl || "";
+        centerImg.style.display = 'block';
         assignTitles();
         // Reload cackle audio if configured
         if (config.gremlin && config.gremlin.cackleAudioUrl) {
@@ -926,6 +1075,13 @@
 
       if (e.key === " ") {
         e.preventDefault();
+        
+        // If in reveal mode, reveal next option
+        if (revealMode) {
+          revealNextOption();
+          return;
+        }
+        
         if (selectedOptionIds.size >= 6) return; // all done
         if (hopping) {
           stopAndSelect();
@@ -950,13 +1106,8 @@
       }
     });
 
-    // Start overlay
-    const startOverlay = document.getElementById("startOverlay");
-    startOverlay.addEventListener("click", () => {
-      ensureAudio();
-      startOverlay.classList.add("hidden");
-      startHopping();
-    });
+    // Auto-start reveal mode
+    ensureAudio();
 
     // Board lights generation
     function generateBoardLights() {
@@ -1011,6 +1162,7 @@
       await tryLoadDefaultFromConfigJson();
       config = loadConfig();
       centerImg.src = config.centerImageUrl || "";
+      centerImg.style.display = 'block'; // Show image once src is loaded
       assignTitles();
       renderDisabled();
       setActive(activeIdx);
@@ -1036,7 +1188,8 @@
           stopCamera();
         }
       });
-      // Don't auto-start; wait for user click
+      // Auto-start reveal mode
+      startRevealMode();
     })();
   </script>
 </body>
